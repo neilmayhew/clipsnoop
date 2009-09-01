@@ -59,9 +59,8 @@ public:
 		if (current != targets.end())
 		{
 			// Fetch the data for the next target type
-			clipboard->request_contents(*current,
+			clipboard->request_contents(*current++,
 				sigc::mem_fun(*this, &ClipDumper::on_received_target));
-			++current;
 		}
 		else
 		{
