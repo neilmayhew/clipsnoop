@@ -12,6 +12,7 @@ void HexDump(const void *theData, size_t size, std::ostream& s)
 
 	for (size_t j = 0; j < size; j += 16)
 	{
+		s << hDigits[j >> 16 & 15];
 		s << hDigits[j >> 12 & 15];
 		s << hDigits[j >>  8 & 15];
 		s << hDigits[j >>  4 & 15];
