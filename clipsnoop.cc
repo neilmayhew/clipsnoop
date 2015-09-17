@@ -16,14 +16,17 @@
 
 class ClipDumper
 {
+	Glib::RefPtr<Gtk::Application> app;
 	Glib::RefPtr<Gtk::Clipboard> clipboard;
 	std::list<std::string> targets;
 	std::list<std::string>::const_iterator current;
 
 public:
-	ClipDumper()
-		: clipboard(Gtk::Clipboard::get())
+	ClipDumper(Glib::RefPtr<Gtk::Application> a)
+		: app(a), clipboard(Gtk::Clipboard::get())
 	{
+		// Initiate by registering a callback from the start of the main loop
+		Glib::signal_idle().connect_once(sigc::mem_fun(this, &ClipDumper::start));
 	}
 
 	void on_received_target(const Gtk::SelectionData& data)
@@ -64,7 +67,7 @@ public:
 		}
 		else
 		{
-			Gtk::Main::quit();
+			app->quit();
 		}
 	}
 
@@ -77,12 +80,11 @@ public:
 
 int main(int argc, char *argv[])
 {
-	Gtk::Main kit(argc, argv);
-	ClipDumper dumper;
+	Glib::RefPtr<Gtk::Application> app = Gtk::Application::create(argc, argv);
+	ClipDumper dumper(app);
 
-	// Initiate by registering a callback from the start of the main loop
-	Gtk::Main::signal_run().connect(sigc::mem_fun(dumper, &ClipDumper::start));
-	Gtk::Main::run();
+	app->hold();
+	app->run();
 
 	return 0;
 }
