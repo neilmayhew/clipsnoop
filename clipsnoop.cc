@@ -26,7 +26,7 @@ public:
 		: app(a), clipboard(Gtk::Clipboard::get())
 	{
 		// Initiate by registering a callback from the start of the main loop
-		Glib::signal_idle().connect_once(sigc::mem_fun(this, &ClipDumper::start));
+		Glib::signal_idle().connect_once(sigc::mem_fun(this, &ClipDumper::fetch_targets));
 	}
 
 	void on_received_target(const Gtk::SelectionData& data)
@@ -40,7 +40,7 @@ public:
 			std::cout << "<null>\n";
 		
 		// Iterate
-		fetch_target();
+		Glib::signal_idle().connect_once(sigc::mem_fun(this, &ClipDumper::fetch_target));
 	}
 
 	void on_received_targets(const Glib::StringArrayHandle& targets_array)
@@ -54,7 +54,7 @@ public:
 
 		// Start iterating through them, one callback at a time
 		current = targets.begin();
-		fetch_target();
+		Glib::signal_idle().connect_once(sigc::mem_fun(this, &ClipDumper::fetch_target));
 	}
 
 	void fetch_target()
@@ -71,7 +71,7 @@ public:
 		}
 	}
 
-	void start()
+	void fetch_targets()
 	{
 		// Discover what target types are available
 		clipboard->request_targets(sigc::mem_fun(*this, &ClipDumper::on_received_targets));
