@@ -29,21 +29,13 @@ public:
 		Glib::signal_idle().connect_once(sigc::mem_fun(this, &ClipDumper::fetch_targets));
 	}
 
-	void on_received_target(const Gtk::SelectionData& data)
+	void fetch_targets()
 	{
-		std::cout << "Got target: " << data.get_target() << "\n";
-
-		// Dump target data
-		if (data.get_data())
-			HexDump(data.get_data(), data.get_length());
-		else
-			std::cout << "<null>\n";
-		
-		// Iterate
-		Glib::signal_idle().connect_once(sigc::mem_fun(this, &ClipDumper::fetch_target));
+		// Discover what target types are available
+		clipboard->request_targets(sigc::mem_fun(*this, &ClipDumper::receive_targets));
 	}
 
-	void on_received_targets(const Glib::StringArrayHandle& targets_array)
+	void receive_targets(const Glib::StringArrayHandle& targets_array)
 	{
 		// Save the list of clipboard target types
 		std::list<std::string> tmp(targets_array);
@@ -62,8 +54,7 @@ public:
 		if (current != targets.end())
 		{
 			// Fetch the data for the next target type
-			clipboard->request_contents(*current++,
-				sigc::mem_fun(*this, &ClipDumper::on_received_target));
+			clipboard->request_contents(*current++, sigc::mem_fun(*this, &ClipDumper::receive_target));
 		}
 		else
 		{
@@ -71,10 +62,18 @@ public:
 		}
 	}
 
-	void fetch_targets()
+	void receive_target(const Gtk::SelectionData& data)
 	{
-		// Discover what target types are available
-		clipboard->request_targets(sigc::mem_fun(*this, &ClipDumper::on_received_targets));
+		std::cout << "Got target: " << data.get_target() << "\n";
+
+		// Dump target data
+		if (data.get_data())
+			HexDump(data.get_data(), data.get_length());
+		else
+			std::cout << "<null>\n";
+
+		// Iterate
+		Glib::signal_idle().connect_once(sigc::mem_fun(this, &ClipDumper::fetch_target));
 	}
 };
 
