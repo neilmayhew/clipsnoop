@@ -1,4 +1,7 @@
-CXXFLAGS = -g
+PREFIX = $(HOME)
+BINDIR = $(PREFIX)/bin
+
+CXXFLAGS = -O2 -g
 
 export GTKMM_CPP = $(shell pkg-config --cflags gtkmm-3.0)
 export GTKMM_LIB = $(shell pkg-config --libs   gtkmm-3.0)
@@ -11,3 +14,7 @@ clipsnoop: clipsnoop.o HexDump.o
 
 clean:
 	$(RM) clipsnoop *.[od]
+
+install:
+	install -d $(DESTDIR)$(BINDIR)/
+	install clipsnoop $(DESTDIR)$(BINDIR)/
