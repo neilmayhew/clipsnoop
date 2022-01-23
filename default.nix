@@ -1,8 +1,9 @@
-{ stdenv, lib, pkgconfig, gnome3 }:
+{ stdenv, lib, pkgconfig, boost, gtkmm3 }:
 
 stdenv.mkDerivation {
   name = "clipsnoop";
   src = lib.cleanSource ./.;
-  buildInputs = [ pkgconfig gnome3.gtkmm ];
+  nativeBuildInputs = [ pkgconfig ];
+  buildInputs = [ gtkmm3 boost ];
   makeFlags = "PREFIX=$(out)";
 }
